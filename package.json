@@ -2,13 +2,19 @@
   "name": "@react-native-async-storage/async-storage",
   "version": "0.0.1",
   "description": "",
-  "main": "index.js",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "prepare": "npm run build"
   },
   "author": "jesse@xrex.io",
   "license": "ISC",
   "peerDependencies": {
     "react-native-keychain": "8.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.1.3"
   }
 }

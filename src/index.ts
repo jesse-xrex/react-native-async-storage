@@ -1,13 +1,13 @@
-const Keychain = require("react-native-keychain");
+import * as Keychain from "react-native-keychain";
 
 const EMPTY_STRING = "__EMPTY_STRING__";
 
-const setSecureStorage = (key, value) => {
+const setSecureStorage = (key: string, value: string) => {
   const _value = value === "" ? EMPTY_STRING : value;
   return Keychain.setGenericPassword(key, _value, { service: key });
 };
 
-const getSecureStorage = async (key) => {
+const getSecureStorage = async (key: string) => {
   const credential = await Keychain.getGenericPassword({ service: key });
   return credential
     ? credential.password === EMPTY_STRING
@@ -16,7 +16,7 @@ const getSecureStorage = async (key) => {
     : undefined;
 };
 
-const clearSecureStorage = async (key) => {
+const clearSecureStorage = async (key: string) => {
   return await Keychain.resetGenericPassword({ service: key });
 };
 
@@ -25,7 +25,10 @@ const getAllKeys = async () => {
 };
 
 const AsyncStorage = {
-  getItem(key, callback) {
+  getItem(
+    key: string,
+    callback: (error: Error | null, result?: string) => void
+  ) {
     return new Promise((resolve, reject) => {
       getSecureStorage(key)
         .then((result) => {
@@ -38,7 +41,7 @@ const AsyncStorage = {
         });
     });
   },
-  setItem(key, value, callback) {
+  setItem(key: string, value: string, callback: (error?: Error) => void) {
     return new Promise((resolve, reject) => {
       setSecureStorage(key, value)
         .then((result) => {
@@ -51,7 +54,7 @@ const AsyncStorage = {
         });
     });
   },
-  removeItem(key, callback) {
+  removeItem(key: string, callback: (error?: Error) => void) {
     return new Promise((resolve, reject) => {
       clearSecureStorage(key)
         .then((result) => {
@@ -64,7 +67,7 @@ const AsyncStorage = {
         });
     });
   },
-  getAllKeys(callback) {
+  getAllKeys(callback: (error: Error | null, result?: string[]) => void) {
     return new Promise((resolve, reject) => {
       getAllKeys()
         .then((result) => {
@@ -77,11 +80,20 @@ const AsyncStorage = {
         });
     });
   },
-  multiGet(keys, callback) {
+  multiGet(
+    keys: string[],
+    callback: (
+      error: Error | null,
+      result?: [string, string | undefined][]
+    ) => void
+  ) {
     return new Promise((resolve, reject) => {
       Promise.all(keys.map((key) => getSecureStorage(key)))
         .then((result) => {
-          const _result = result.map((value, index) => [keys[index], value]);
+          const _result = result.map((value, index) => [
+            keys[index],
+            value,
+          ]) as [string, string | undefined][];
           callback?.(null, _result);
           resolve(_result);
         })
@@ -92,7 +104,10 @@ const AsyncStorage = {
     });
   },
   // Not used, just for compatibility
-  multiSet(keyValuePairs, callback) {
+  multiSet(
+    keyValuePairs: [string, string][],
+    callback: (error?: Error) => void
+  ) {
     return new Promise((resolve, reject) => {
       Promise.all(
         keyValuePairs.map(([key, value]) => setSecureStorage(key, value))
@@ -107,7 +122,7 @@ const AsyncStorage = {
         });
     });
   },
-  multiRemove(keys, callback) {
+  multiRemove(keys: string[], callback: (error?: Error) => void) {
     return new Promise((resolve, reject) => {
       Promise.all(keys.map((key) => clearSecureStorage(key)))
         .then((result) => {
@@ -136,4 +151,4 @@ const AsyncStorage = {
   },
 };
 
-module.exports = AsyncStorage;
+export default AsyncStorage;
